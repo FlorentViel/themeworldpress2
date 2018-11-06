@@ -98,3 +98,84 @@ function add_title_tag(){
 }
 
 add_action( 'after_setup_theme','add_title_tag');
+
+// Fonction do_shortcode
+
+
+if(!function_exists('shortcode'))
+{
+    function shortcode (string $tag, array $params = []) 
+    {   
+        //var_dump($params);
+
+        foreach ($params as $key => $value)
+        {
+            if (is_bool($value))
+            {
+                $value = $value ? "true" : "false";
+            }
+            
+            elseif (is_string($value))
+            {
+                $value = "'$value'";
+            }
+
+            array_push($params, $key. "=". $value);
+            unset($params[$key]);
+        }
+
+        return do_shortcode('['.$tag.' '.implode(" ", $params).' ]');
+        //do_shortcode('[contact-form-7 id="20" title="Contact form 1"]');
+    }
+}
+
+// Creation d'un shortcode qui affiche la langue du site
+//  [lang]
+function get_language()  {
+    return bloginfo('language');
+}
+add_shortcode('lang', 'get_language');
+// Shortcode addition
+// do_shortcode('[addition a=10 b=32]A + B vaux :[/addition]')
+function addition($attributes, $content, $tag)
+{
+    // echo "<h3>Attr</h3>";
+    // echo "<pre>".print_r($attributes)."</pre>";
+    // echo "<h3>Content</h3>";    
+    // echo "<pre>".print_r($content)."</pre>";
+    
+    // echo "<h3>Tag</h3>";
+    // echo "<pre>".print_r($tag)."</pre>";
+    return $content .($attributes['a'] + $attributes['b']);
+}
+add_shortcode('addition', 'addition');
+
+// Custom Post - Post personnalisé
+function movie_custom_post_type(){
+    $labels = [
+        'name' => _x('Film' , 'Films'),
+        'add_new' => __('Créer une fiche de film '),
+        'menu_name' => __('Nos films et Séries'),
+    ];
+
+    // Dfinition des Labels texte 
+    
+    // Définition des paramètres du post personnalisé
+    $args = [
+        'label' => __("Films et Séries"),
+        'labels' => $labels,
+        'public' => true
+    ];
+
+    // Ajout du post au registre de worldPress 
+
+    register_post_type("movies", $args);
+
+}
+
+add_action('init' , 'movie_custom_post_type' );
+
+
+
+
+// Créer une page "eco", une page "hight-tech" avec leur modèle PHP
